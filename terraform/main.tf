@@ -19,6 +19,7 @@ module "vpc" {
 
 resource "aws_ecr_repository" "app" {
   name = var.app_name
+  force_delete = true # Ensures the repo is deleted even if images exist
 }
 
 resource "null_resource" "docker_build_push" {
