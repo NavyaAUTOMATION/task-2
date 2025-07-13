@@ -20,6 +20,9 @@ module "vpc" {
 resource "aws_ecr_repository" "app" {
   name = var.app_name
   force_delete = true # Ensures the repo is deleted even if images exist
+  lifecycle {
+    prevent_destroy = false
+  }
 }
 
 resource "null_resource" "docker_build_push" {
@@ -83,6 +86,9 @@ resource "aws_lambda_function" "app" {
   role          = aws_iam_role.lambda_exec.arn
   image_uri     = data.aws_ecr_image.lambda_image.image_uri
   timeout       = 30
+  lifecycle {
+    create_before_destroy = true
+  }
 
   vpc_config {
     subnet_ids         = module.vpc.private_subnets
@@ -128,4 +134,3 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
-
